@@ -1,0 +1,14 @@
+
+<div>
+    <label for="username">Username:</label>
+    <input id="username" type="text" [(ngModel)]="username">
+    <button (click)="onSubmit()">Submit</button>
+</div>
+
+<p *ngIf="errorMessage">{{ errorMessage }}</p>
+
+<h2>Current users</h2>
+<div *ngFor="let user of usernames">
+    {{ user }}
+</div>
+
