@@ -8,11 +8,16 @@ import { UserService } from '../user.service';
 })
 export class NavBarComponent {
   username: string = '';
+  userid: string ='';
 
   constructor(private userService: UserService) {
     const storedUsername = localStorage.getItem('username');
     if (storedUsername) {
       this.username = storedUsername;
+    }
+    const storedUserid = localStorage.getItem('userid');
+    if (storedUserid) {
+      this.userid = storedUserid;
     }
   }
 

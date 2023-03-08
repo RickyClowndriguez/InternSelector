@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { UserService } from '../user.service';
 import { Router } from '@angular/router';
+import { User } from '../models/user';
 
 @Component({
   selector: 'app-login',
@@ -8,34 +9,30 @@ import { Router } from '@angular/router';
   styleUrls: ['./login.component.css']
 })
 export class LoginComponent {
-  usernames: string[] = ['Hugo'];
-  username: string = '';
-  team: string = '1';
-  status: string ='online';
-  errorMessage: string ='';
+  user: User = {} as User;
+  usernames: String[] = [];
+  errorMessage: String = '';
+  
 
   constructor(private userService: UserService, 
     private router: Router) {}
 
   onSubmit() {
     // add username to database
-    this.userService.addUser(this.username, this.team, 'online').subscribe(
-      () => {
-        //store username on client side
-        localStorage.setItem('username', this.username);
-        console.log('User added successfully!');
-        //update database
-        this.userService.getUsernames().subscribe(
-          usernames => this.usernames = usernames
-        );
-        //navigate to selection
-        this.router.navigate(['/selection']);
-      },
-      error => {
-        console.error(error);
-        this.errorMessage = error;
-      }
-    );
+    this.userService.addUser(this.user.name).subscribe(user => {
+      this.user = user;
+      //log the lobbyid for debugging
+      console.log(this.user.id);
+      //store username and id on client side
+      localStorage.setItem("username", this.user.name as string);
+      localStorage.setItem("userid", this.user.id as string);
+      console.log('User added successfully!');
+      //navigate to selection
+      //this.router.navigate(['/selection']);
+
+
+      // catch error?!
+    });
   
 
   }
@@ -43,9 +40,10 @@ export class LoginComponent {
   ngOnInit() {
     console.log('usernames should be displayed here')
 
-    this.userService.getUsernames().subscribe(
-      usernames => this.usernames = usernames
-    );
+    this.userService.getAllUsernames()
+    .subscribe(usernames => {
+      this.usernames = usernames;
+    });
     
     console.log(this.usernames);
   }

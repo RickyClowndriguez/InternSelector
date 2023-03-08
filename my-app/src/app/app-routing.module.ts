@@ -5,7 +5,7 @@ import { SelectionComponent } from './selection/selection.component';
 
 const routes: Routes = [
   { path: '', component: LoginComponent },
-  { path: 'selection', component: SelectionComponent }
+  { path: 'selection/:id', component: SelectionComponent }
 ];
 
 @NgModule({

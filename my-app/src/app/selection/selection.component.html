@@ -1,15 +1,19 @@
+<h1>This is the Lobby page for the Lobby {{ this.lobby.id }}</h1>
+
+<button (click)="joinLobby()">Join Lobby</button>
+
 <h1>Teams</h1>
 <div class="row">
   <div class="col">
     <h2>Team 1</h2>
     <ul>
-      <li *ngFor="let user of users1">{{ user.username }} - {{ user.status }}</li>
+      <li *ngFor="let user of usernames"> {{  user }}</li>
     </ul>
   </div>
   <div class="col">
     <h2>Team 2</h2>
     <ul>
-      <li *ngFor="let user of users2">{{ user.username }} - {{ user.status }}</li>
+      <li *ngFor="let user of usernames"> {{  user }}</li>
     </ul>
   </div>
 </div>

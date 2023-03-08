@@ -2,61 +2,88 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
 import { Injectable } from '@angular/core';
+import { catchError } from 'rxjs/operators';
+import { User } from './models/user';
+import { tap } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
 })
 export class UserService {
-  private apiUrl = 'http://localhost:3000/users';
+  private apiUrl = 'http://localhost:8080/api/users';
 
   constructor(private http: HttpClient) { }
 
-  getUsers(): Observable<any[]> {
+
+  //get a list of all users (will probably be removed)
+  getUsers(): Observable<User[]> {
     return this.http.get<any[]>(this.apiUrl);
   }
 
-  getUsernames(): Observable<string[]> {
-    return this.http.get<any[]>(this.apiUrl).pipe(
-      map(users => users.map(user => user.username))
+  //get list of all usernames
+  getAllUsernames(): Observable<String[]> {
+    return this.http.get<any[]>(`${this.apiUrl}`).pipe(
+      map(users => users.map(user => user.name))
     );
   }
 
-  getUsersWithTeamAndStatus(): Observable<any[]> {
-    return this.getUsers().pipe(
-      map(users => users.map(user => {
-        return {
-          username: user.username,
-          team: user.team,
-          status: user.status
-        };
-      }))
-    );
+  //get user information by id
+  getUserById(userid: String): Observable<User> {
+      return this.http.get<any>(`${this.apiUrl}/${userid}`).pipe(
+        tap(response => console.log(response)),
+        map(response => {
+          const user = new User(
+            response._id,
+            response.name,
+            response.champion,
+            response.lobby
+          );
+          return user;
+        }),
+        catchError(error => {
+          console.log(error);
+          return throwError(error);
+        })
+      );
   }
 
-  addUser(username: string, team: string, status: string): Observable<any> {
-    return this.getUsernames().pipe(
-      switchMap(usernames => {
-        if (usernames.includes(username)) {
-          return throwError('Username already taken');
-        } else {
-          const user = { username, team, status };
-          return this.http.post<any>(this.apiUrl, user);
-        }
+  //create a new user
+  addUser(username: String): Observable<any> {
+      const user = { name: username };
+      return this.http.post<any>(`${this.apiUrl}`, user).pipe(
+        tap(response => console.log(response)),
+        map(response => {
+          const user = new User(
+            response._id,
+            response.name,
+            response.champion,
+            response.lobby
+          );
+          return user;
+        }),
+        catchError(error => {
+          console.log(error);
+          return throwError(error);
+        })
+      );;
+  }
+
+  //create a new user given a lobby
+  addUserWithLobby(username: String, lobbyid: String): Observable<any> {
+    const user = { name: username , lobby: lobbyid};
+    return this.http.post<any>(`${this.apiUrl}`, user);
+  }
+
+  //remove a username by id
+  removeUser(id: String): Observable<any> {
+    const url = `${this.apiUrl}/${id}`;
+    return this.http.delete(url, { responseType: 'text' }).pipe(
+      catchError(error => {
+        console.log(error);
+        return error;
       })
     );
   }
-
-  removeUser(username: string): Observable<any> {
-    return this.getUsers().pipe(
-      map(users => users.find(user => user.username === username)),
-      map(user => {
-        if (user) {
-          const url = `${this.apiUrl}/${user.id}`;
-          return this.http.delete(url);
-        } else {
-          return null;
-        }
-      })
-    );
-  }
+       
+  
 }
